@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<widget id="net.reederhome.colin.apps.helichal" version="0.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+	<name>Helichal</name>
+	<description>
+		It might be a game
+	</description>
+	<author>
+		VpzomTrrfrt
+	</author>
+	<preference name="permissions" value="none"/>
+	<preference name="orientation" value="portrait"/>
+	<preference name="fullscreen" value="true"/>
+	<gap:plugin name="nl.x-services.plugins.insomnia" version="3.0" />
+	<icon src="www/icon.png" />
+	<icon platform="android" density="ldpi" src="www/res/icons/icon-36.png" />
+	<icon platform="android" density="mdpi" src="www/res/icons/icon-48.png" />
+	<icon platform="android" density="hdpi" src="www/res/icons/icon-72.png" />
+	<icon platform="android" density="xhdpi" src="www/res/icons/icon-96.png" />
+	<icon platform="ios" height="57" src="www/res/icons/icon-57.png" />
+</widget>
