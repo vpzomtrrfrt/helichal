@@ -2,6 +2,7 @@ function rAF(f) {
 	if(window.requestAnimationFrame) {window.requestAnimationFrame(f);}
 	else {setTimeout(f,33);}
 }
+pclrs = ["red","lime","cyan"];
 var HelichalGame = function(st) {
 	HelichalGame.currentGame=this;
 	this.px=window.innerWidth*.45;
@@ -10,17 +11,27 @@ var HelichalGame = function(st) {
 	this.platforms = [{x: window.innerWidth*.4, h: window.innerHeight/5}];
 	this.score=0;
 	this.state=st===undefined?1:st;
+	this.dir0time=0;
+	this.pickColor();
 };
+HelichalGame.prototype.pickColor = function() {this.pclr = pclrs[Math.floor(Math.random()*pclrs.length)];};
 HelichalGame.prototype.draw = function() {
 	if(this.state==1) {
 		ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
-		ctx.fillStyle="red";
+		if(this.strobe) this.pickColor();
+		ctx.fillStyle=this.pclr;
 		ctx.fillRect(this.px,this.py,this.psz,this.psz);
 		ctx.fillStyle="yellow";
-		ctx.fillRect(this.px+this.psz/5,this.py+this.psz/5,this.psz/5,this.psz/5);
-		ctx.fillRect(this.px+this.psz*3/5,this.py+this.psz/5,this.psz/5,this.psz/5);
+		ctx.fillRect(this.px+this.psz/5,this.py+this.psz/5,this.psz/5,this.psz/((this.dir0time>30&&this.dir0time<35)?10:5));
+		ctx.fillRect(this.px+this.psz*3/5,this.py+this.psz/5,this.psz/5,this.psz/((this.dir0time>30&&this.dir0time<35)?10:5));
 		ctx.fillStyle="black";
 		var dir = accel.x<-1?-1:(accel.x>1?1:0);
+		if(dir==0) {
+			this.dir0time++;
+		}
+		else {
+			this.dir0time=0;
+		}
 		var ex = this.px+this.psz*(dir==-1?.6:(dir==1?.7:.65));
 		var ey = this.py+this.psz*(dir==0?.22:.25);
 		ctx.fillRect(ex,ey,this.psz/10,this.psz/10);
