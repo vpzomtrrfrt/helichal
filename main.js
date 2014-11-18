@@ -13,6 +13,7 @@ var HelichalGame = function(st) {
 	this.state=st===undefined?1:st;
 	this.dir0time=0;
 	this.pickColor();
+	this.secret={};
 };
 HelichalGame.prototype.pickColor = function() {this.pclr = pclrs[Math.floor(Math.random()*pclrs.length)];};
 HelichalGame.prototype.draw = function() {
@@ -145,7 +146,16 @@ HelichalGame.prototype.touchstart = function($0, e) {
 		var x = e.changedTouches[0].clientX;
 		var y = e.changedTouches[0].clientY;
 		if(x>window.innerWidth*.4&&x<window.innerWidth*.6&&y>window.innerHeight*.55&&y<window.innerHeight*.55+window.innerWidth*.1) {
-			new HelichalGame().tick();
+			var ng = new HelichalGame();
+			if(this.strobe) ng.strobe=this.strobe;
+			ng.tick();
+		}
+		if(y<window.innerHeight/10) {
+			this.secret.up=this.secret.up?this.secret.up+1:1;
+		}
+		if(y>window.innerHeight*.9) {
+			this.secret.down=this.secret.down?this.secret.down+1:1;
+			if(this.secret.down==2&&this.secret.up>1) this.strobe=!this.strobe;
 		}
 	}
 	else if(this.state==0) {
