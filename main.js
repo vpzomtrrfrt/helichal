@@ -20,8 +20,11 @@ HelichalGame.prototype.draw = function() {
 		ctx.fillRect(this.px+this.psz/5,this.py+this.psz/5,this.psz/5,this.psz/5);
 		ctx.fillRect(this.px+this.psz*3/5,this.py+this.psz/5,this.psz/5,this.psz/5);
 		ctx.fillStyle="black";
-		ctx.fillRect(this.px+this.psz*.65,this.py+this.psz*.22,this.psz/10,this.psz/10);
-		ctx.fillRect(this.px+this.psz*.25,this.py+this.psz*.22,this.psz/10,this.psz/10);
+		var dir = accel.x<-1?-1:(accel.x>1?1:0);
+		var ex = this.px+this.psz*(dir==-1?.6:(dir==1?.7:.65));
+		var ey = this.py+this.psz*(dir==0?.22:.25);
+		ctx.fillRect(ex,ey,this.psz/10,this.psz/10);
+		ctx.fillRect(ex-this.psz*.4,ey,this.psz/10,this.psz/10);
 		for(var p=0;p<this.platforms.length;p++) {
 			var cp = this.platforms[p];	
 			if(isNaN(cp.h)) continue;
@@ -107,6 +110,7 @@ HelichalGame.prototype.tick = function() {
 		if(window.plugins&&window.plugins.insomnia) {window.plugins.insomnia.allowSleepAgain();}
 	}
 	this.draw();
+	if(this.state==-2) {this.state=-42;}
 	if(this.state===0||this.state==1) {
 		rAF(HelichalGame.tickIt);
 	}
@@ -125,7 +129,7 @@ HelichalGame.prototype.genPlatforms = function() {
 	}
 };
 HelichalGame.prototype.touchstart = function($0, e) {
-	if(this.state==-2) {
+	if(this.state==-42) {
 		console.log(e);
 		var x = e.changedTouches[0].clientX;
 		var y = e.changedTouches[0].clientY;
