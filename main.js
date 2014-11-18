@@ -16,6 +16,12 @@ HelichalGame.prototype.draw = function() {
 		ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
 		ctx.fillStyle="red";
 		ctx.fillRect(this.px,this.py,this.psz,this.psz);
+		ctx.fillStyle="yellow";
+		ctx.fillRect(this.px+this.psz/5,this.py+this.psz/5,this.psz/5,this.psz/5);
+		ctx.fillRect(this.px+this.psz*3/5,this.py+this.psz/5,this.psz/5,this.psz/5);
+		ctx.fillStyle="black";
+		ctx.fillRect(this.px+this.psz*.65,this.py+this.psz*.22,this.psz/10,this.psz/10);
+		ctx.fillRect(this.px+this.psz*.25,this.py+this.psz*.22,this.psz/10,this.psz/10);
 		for(var p=0;p<this.platforms.length;p++) {
 			var cp = this.platforms[p];	
 			if(isNaN(cp.h)) continue;
