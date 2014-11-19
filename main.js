@@ -2,7 +2,7 @@ function rAF(f) {
 	if(window.requestAnimationFrame) {window.requestAnimationFrame(f);}
 	else {setTimeout(f,33);}
 }
-pclrs = ["red","lime","cyan"];
+pclrs = ["red","lime","cyan","orange"];
 var HelichalGame = function(st,gm) {
 	HelichalGame.currentGame=this;
 	this.px=cnvs.width*.45;
@@ -130,7 +130,7 @@ HelichalGame.prototype.tick = function() {
 		this.adj = (60/fps)*(cnvs.width/240);
 		this.px+=accel.x*this.adj;
 		if(this.gamemode==1) {
-			this.py=Math.min(this.py+accel.y*this.adj,maxpy);
+			this.py=Math.max(Math.min(this.py+accel.y*this.adj,maxpy),0);
 		}
 		this.genPlatforms();
 		if(this.px<0) {this.px=0;}
