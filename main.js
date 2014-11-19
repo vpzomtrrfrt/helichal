@@ -3,17 +3,19 @@ function rAF(f) {
 	else {setTimeout(f,33);}
 }
 pclrs = ["red","lime","cyan"];
-var HelichalGame = function(st) {
+var HelichalGame = function(st,gm) {
 	HelichalGame.currentGame=this;
 	this.px=cnvs.width*.45;
 	this.psz=cnvs.width*.1;
 	this.py=cnvs.height-this.psz-2;
+	maxpy=this.py;
 	this.platforms = [{x: cnvs.width*.4, h: cnvs.height/5}];
 	this.score=0;
 	this.state=st===undefined?1:st;
 	this.dir0time=0;
 	this.pickColor();
 	this.secret={};
+	this.gamemode=gm?gm:0;
 };
 HelichalGame.prototype.keepAwake = function() {
 	if(window.plugins&&window.plugins.insomnia&&!this.stayingAwake) {
@@ -63,8 +65,9 @@ HelichalGame.prototype.draw = function() {
 	else if(this.state==-2) {
 		ctx.fillStyle="rgba(255,255,255,0.5)";
 		ctx.fillRect(0,0,cnvs.width,cnvs.height);
-		if("helichalHighscore" in localStorage) {
-			var high = parseInt(localStorage.getItem("helichalHighscore"));
+		var hsk = this.gamemode==0?"helichalHighscore":("helichalGM"+this.gamemode+"HS");
+		if(hsk in localStorage) {
+			var high = parseInt(localStorage.getItem(hsk));
 		}
 		else {
 			var high = -1;
@@ -75,7 +78,7 @@ HelichalGame.prototype.draw = function() {
 			ctx.fillStyle="red";
 			hst="New "+hst;
 			high = this.score;
-			localStorage.setItem("helichalHighscore",high);
+			localStorage.setItem(hsk,high);
 		}
 		hst+=high;
 		ctx.font=Math.ceil(10*cnvs.width/240)+"pt monospace";
@@ -100,6 +103,14 @@ HelichalGame.prototype.draw = function() {
 		ctx.font=Math.ceil(12*cnvs.width/240)+"pt monospace";
 		var msa = ctx.measureText(txt);
 		ctx.fillText(txt,cnvs.width/2-msa.width/2,cnvs.height*.6);
+		
+		var txt2 = "Free Fly Mode?";
+		ctx.font=Math.floor(cnvs.height/20)+"px monospace";
+		var ms2 = ctx.measureText(txt2);
+		ctx.fillStyle="red";
+		ctx.fillRect(0,cnvs.height*.94,cnvs.width,cnvs.height*.06);
+		ctx.fillStyle="black";
+		ctx.fillText(txt2,cnvs.width/2-ms2.width/2,cnvs.height*.99);
 	}
 };
 HelichalGame.prototype.tick = function() {
@@ -113,6 +124,9 @@ HelichalGame.prototype.tick = function() {
 		}
 		this.adj = (60/fps)*(cnvs.width/240);
 		this.px+=accel.x*this.adj;
+		if(this.gamemode==1) {
+			this.py=Math.min(this.py+accel.y*this.adj,maxpy);
+		}
 		this.genPlatforms();
 		if(this.px<0) {this.px=0;}
 		if(this.px+this.psz>cnvs.width) {this.px=cnvs.width-this.psz}
@@ -120,7 +134,7 @@ HelichalGame.prototype.tick = function() {
 		for(var p = 0; p < this.platforms.length; p++) {
 			var cp = this.platforms[p];
 			cp.h-=this.adj;
-			if(this.py<cnvs.height-cp.h&&cnvs.height>cnvs.height*.95-cp.h&&(this.px<cp.x||this.px+this.psz>cp.x+cnvs.width/3)) {
+			if(this.py<cnvs.height-cp.h&&this.py+this.psz>cnvs.height*.95-cp.h&&(this.px<cp.x||this.px+this.psz>cp.x+cnvs.width/3)) {
 				this.state=-2;
 				//this.draw();
 			}
@@ -155,7 +169,7 @@ HelichalGame.prototype.genPlatforms = function() {
 HelichalGame.prototype.click = function(x,y) {
 	if(this.state==-42) {
 		if(x>cnvs.width*.4&&x<cnvs.width*.6&&y>cnvs.height*.55&&y<cnvs.height*.55+cnvs.width*.1) {
-			var ng = new HelichalGame();
+			var ng = new HelichalGame(undefined,this.gamemode);
 			if(this.strobe) ng.strobe=this.strobe;
 			ng.tick();
 		}
@@ -168,6 +182,7 @@ HelichalGame.prototype.click = function(x,y) {
 		}
 	}
 	else if(this.state==0) {
+		if(y>cnvs.height*.94) this.gamemode=1;
 		this.state=1;
 		this.tick();
 	}
@@ -181,10 +196,11 @@ HelichalGame.prototype.mousestart = function($0, e) {
 	console.log(e);
 	this.click(e.pageX,e.pageY-adh);
 };
-accel = {x: 0};
+accel = {x:0,y:0};
 
 var orient = function(e) {
 	accel.x=Math.min(5,e.gamma/9);
+	accel.y=Math.min(5,e.beta/9);
 };
 function onLoad() {
 	console.log("loaded");
