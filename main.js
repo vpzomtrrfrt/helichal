@@ -15,6 +15,18 @@ var HelichalGame = function(st) {
 	this.pickColor();
 	this.secret={};
 };
+HelichalGame.prototype.keepAwake = function() {
+	if(window.plugins&&window.plugins.insomnia&&!this.stayingAwake) {
+		window.plugins.insomnia.keepAwake();
+		this.stayingAwake=true;
+	}
+};
+HelichalGame.prototype.allowSleep = function() {
+	if(window.plugins&&window.plugins.insomnia&&this.stayingAwake) {
+		window.plugins.insomnia.allowSleepAgain();
+		this.stayingAwake=false;
+	}
+};
 HelichalGame.prototype.pickColor = function() {this.pclr = pclrs[Math.floor(Math.random()*pclrs.length)];};
 HelichalGame.prototype.draw = function() {
 	if(this.state==1) {
@@ -92,7 +104,7 @@ HelichalGame.prototype.draw = function() {
 };
 HelichalGame.prototype.tick = function() {
 	if(this.state==1) {
-		if(window.plugins&&window.plugins.insomnia) {window.plugins.insomnia.keepAwake();}
+		this.keepAwake();
 		if(this.lastTime) {
 			fps = (1000/(new Date().getTime()-this.lastTime));
 		}
@@ -119,7 +131,7 @@ HelichalGame.prototype.tick = function() {
 		}
 	}
 	else {
-		if(window.plugins&&window.plugins.insomnia) {window.plugins.insomnia.allowSleepAgain();}
+		this.allowSleep();
 	}
 	this.draw();
 	if(this.state==-2) {this.state=-42;}
