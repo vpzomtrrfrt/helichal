@@ -146,7 +146,7 @@ HelichalGame.prototype.tick = function() {
 		this.lastTime=new Date().getTime();
 		for(var p = 0; p < this.platforms.length; p++) {
 			var cp = this.platforms[p];
-			cp.h-=this.adj*(this.gamemode==2?2:1);
+			cp.h-=this.adj*(this.gamemode==2?3:1);
 			if(this.py<cnvs.height-cp.h&&this.py+this.psz>cnvs.height*.95-cp.h&&(this.px<cp.x||this.px+this.psz>cp.x+cnvs.width/3)) {
 				this.state=-3;
 			}
