@@ -31,7 +31,7 @@ HelichalGame.prototype.allowSleep = function() {
 };
 HelichalGame.prototype.pickColor = function() {this.pclr = pclrs[Math.floor(Math.random()*pclrs.length)];};
 HelichalGame.prototype.draw = function() {
-	if(this.state==1) {
+	if(this.state==1||this.state==-3) {
 		ctx.clearRect(0,0,cnvs.width,cnvs.height);
 		if(this.strobe) this.pickColor();
 		ctx.fillStyle=this.pclr;
@@ -58,9 +58,14 @@ HelichalGame.prototype.draw = function() {
 			ctx.fillRect(0,cnvs.height*.97-cp.h,cp.x,cnvs.height*.06);
 			ctx.fillRect(cp.x+cnvs.width/3,cnvs.height*.97-cp.h,cnvs.width*2/3-cp.x,cnvs.height*.06);
 		}
-		ctx.fillStyle="black";
-		ctx.font=(12*cnvs.width/240)+"pt serif";
-		ctx.fillText("Score: "+this.score,0,cnvs.height-3);
+		if(this.state==1) {
+			ctx.fillStyle="black";
+			ctx.font=(12*cnvs.width/240)+"pt serif";
+			ctx.fillText("Score: "+this.score,0,cnvs.height-3);
+		}
+		else {
+			this.state=-2;
+		}
 	}
 	else if(this.state==-2) {
 		ctx.fillStyle="rgba(255,255,255,0.5)";
@@ -135,7 +140,8 @@ HelichalGame.prototype.tick = function() {
 			var cp = this.platforms[p];
 			cp.h-=this.adj;
 			if(this.py<cnvs.height-cp.h&&this.py+this.psz>cnvs.height*.95-cp.h&&(this.px<cp.x||this.px+this.psz>cp.x+cnvs.width/3)) {
-				this.state=-2;
+				this.state=-3;
+				this.draw();
 				//this.draw();
 			}
 		}
