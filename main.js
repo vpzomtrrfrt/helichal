@@ -95,6 +95,7 @@ HelichalGame.prototype.draw = function() {
 		var msm = ctx.measureText(txt);
 		ctx.fillText(txt,cnvs.width/2-msm.width/2,cnvs.height/2);
 		ctx.drawImage(rpimg,cnvs.width*.4,cnvs.height*.55,cnvs.width*.2,cnvs.width*.1);
+		ctx.drawImage(mmimg,cnvs.width*.4,cnvs.height*.7,cnvs.width*.2,cnvs.width*.1);
 	}
 	else if(this.state==0) {
 		ctx.clearRect(0,0,cnvs.width,cnvs.height);
@@ -187,6 +188,10 @@ HelichalGame.prototype.click = function(x,y) {
 			if(this.strobe) ng.strobe=this.strobe;
 			ng.tick();
 		}
+		else if(x>cnvs.width*.4&&x<cnvs.width*.6&&y>cnvs.height*.7&&y<cnvs.height*.7+cnvs.width*.1) {
+			var ng = new HelichalGame(0);
+			ng.tick();
+		}
 		if(y<cnvs.height/10) {
 			this.secret.up=this.secret.up?this.secret.up+1:1;
 		}
@@ -206,10 +211,13 @@ HelichalGame.prototype.touchstart = function($0, e) {
 	var x = e.changedTouches[0].clientX;
 	var y = e.changedTouches[0].clientY-adh;
 	this.click(x,y);
+	disableMouse=true;
 };
 HelichalGame.prototype.mousestart = function($0, e) {
-	console.log(e);
-	this.click(e.pageX,e.pageY-adh);
+	if(!disableMouse) {
+		console.log(e);
+		this.click(e.pageX,e.pageY-adh);
+	}
 };
 accel = {x:0,y:0};
 
@@ -227,6 +235,8 @@ function onLoad() {
 	}
 	rpimg = document.createElement('img');
 	rpimg.src="img/replay.png";
+	mmimg = document.createElement('img');
+	mmimg.src="img/menu.png";
 }
 function onReady() {
 	console.log("ready");
