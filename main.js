@@ -135,16 +135,13 @@ HelichalGame.prototype.genPlatforms = function() {
 	while(this.platforms[this.platforms.length-1].h<window.innerHeight) {
 		var lp = this.platforms[this.platforms.length-1];
 		var npx = Math.floor(Math.random()*(window.innerWidth*.8));
-		var nph = lp.h+window.innerHeight*.2+Math.abs(npx-lp.x)/((5-Math.random()*(4-this.score/100))*this.adj);
+		var nph = lp.h+window.innerHeight*.2+Math.abs(npx-lp.x)/((5-Math.random()*(4-this.score/100))*this.adj+0.0001);
 		
 		this.platforms.push({x: npx, h: nph});
 	}
 };
-HelichalGame.prototype.touchstart = function($0, e) {
+HelichalGame.prototype.click = function(x,y) {
 	if(this.state==-42) {
-		console.log(e);
-		var x = e.changedTouches[0].clientX;
-		var y = e.changedTouches[0].clientY;
 		if(x>window.innerWidth*.4&&x<window.innerWidth*.6&&y>window.innerHeight*.55&&y<window.innerHeight*.55+window.innerWidth*.1) {
 			var ng = new HelichalGame();
 			if(this.strobe) ng.strobe=this.strobe;
@@ -163,6 +160,15 @@ HelichalGame.prototype.touchstart = function($0, e) {
 		this.tick();
 	}
 };
+HelichalGame.prototype.touchstart = function($0, e) {
+	var x = e.changedTouches[0].clientX;
+	var y = e.changedTouches[0].clientY;
+	this.click(x,y);
+};
+HelichalGame.prototype.mousestart = function($0, e) {
+	console.log(e);
+	this.click(e.pageX,e.pageY);
+};
 accel = {x: 0};
 
 var orient = function(e) {
@@ -170,7 +176,12 @@ var orient = function(e) {
 };
 function onLoad() {
 	console.log("loaded");
-	document.addEventListener("deviceready", onReady);
+	if(window.cordova) {
+		document.addEventListener("deviceready", onReady);
+	}
+	else {
+		onReady();
+	}
 	rpimg = document.createElement('img');
 	rpimg.src="img/replay.png";
 }
@@ -184,4 +195,5 @@ function onReady() {
 	game.tick();
 	window.addEventListener("deviceorientation", orient);
 	window.addEventListener("touchstart", HelichalGame.fire.bind(HelichalGame,"touchstart"));
+	window.addEventListener("mousedown", HelichalGame.fire.bind(HelichalGame,"mousestart"));
 };
