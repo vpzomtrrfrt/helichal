@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<widget id="net.reederhome.colin.apps.helichal" version="0.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
+<widget id="net.reederhome.colin.apps.helichal" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
 	<name>Helichal</name>
 	<description>
 		It might be a game
@@ -17,4 +17,5 @@
 	<icon platform="android" density="hdpi" src="www/res/icons/icon-72.png" />
 	<icon platform="android" density="xhdpi" src="www/res/icons/icon-96.png" />
 	<icon platform="ios" height="57" src="www/res/icons/icon-57.png" />
+	<access origin="*" />
 </widget>

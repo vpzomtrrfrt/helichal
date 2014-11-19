@@ -174,12 +174,12 @@ HelichalGame.prototype.click = function(x,y) {
 };
 HelichalGame.prototype.touchstart = function($0, e) {
 	var x = e.changedTouches[0].clientX;
-	var y = e.changedTouches[0].clientY;
+	var y = e.changedTouches[0].clientY-adh;
 	this.click(x,y);
 };
 HelichalGame.prototype.mousestart = function($0, e) {
 	console.log(e);
-	this.click(e.pageX,e.pageY);
+	this.click(e.pageX,e.pageY-adh);
 };
 accel = {x: 0};
 
@@ -199,9 +199,11 @@ function onLoad() {
 }
 function onReady() {
 	console.log("ready");
+	adh = document.getElementById('smaatoad').clientHeight;
 	cnvs = document.getElementById('cnvs');
 	cnvs.width=window.innerWidth;
-	cnvs.height=window.innerHeight;
+	cnvs.height=window.innerHeight-adh;
+	cnvs.style.top=adh;
 	ctx = cnvs.getContext('2d');
 	var game = new HelichalGame(0);
 	game.tick();
