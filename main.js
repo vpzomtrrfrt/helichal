@@ -55,8 +55,8 @@ HelichalGame.prototype.draw = function() {
 			var cp = this.platforms[p];	
 			if(isNaN(cp.h)) continue;
 			ctx.fillStyle="blue";
-			ctx.fillRect(0,cnvs.height*.97-cp.h,cp.x,cnvs.height*.06);
-			ctx.fillRect(cp.x+cnvs.width/3,cnvs.height*.97-cp.h,cnvs.width*2/3-cp.x,cnvs.height*.06);
+			ctx.fillRect(0,cnvs.height*.94-cp.h,cp.x,cnvs.height*.06);
+			ctx.fillRect(cp.x+cnvs.width/3,cnvs.height*.94-cp.h,cnvs.width*2/3-cp.x,cnvs.height*.06);
 		}
 		if(this.state==1) {
 			ctx.fillStyle="black";
@@ -147,7 +147,7 @@ HelichalGame.prototype.tick = function() {
 		for(var p = 0; p < this.platforms.length; p++) {
 			var cp = this.platforms[p];
 			cp.h-=this.adj*(this.gamemode==2?3:1);
-			if(this.py<cnvs.height-cp.h&&this.py+this.psz>cnvs.height*.95-cp.h&&(this.px<cp.x||this.px+this.psz>cp.x+cnvs.width/3)) {
+			if(this.py<cnvs.height-cp.h&&this.py+this.psz>cnvs.height*.94-cp.h&&(this.px<cp.x||this.px+this.psz>cp.x+cnvs.width/3)) {
 				this.state=-3;
 			}
 		}
