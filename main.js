@@ -116,6 +116,13 @@ HelichalGame.prototype.draw = function() {
 		ctx.fillRect(0,cnvs.height*.94,cnvs.width,cnvs.height*.06);
 		ctx.fillStyle="black";
 		ctx.fillText(txt2,cnvs.width/2-ms2.width/2,cnvs.height*.99);
+		
+		var txt3 = "Lightning Mode?";
+		var ms3 = ctx.measureText(txt3);
+		ctx.fillStyle="yellow";
+		ctx.fillRect(0,cnvs.height*.88,cnvs.width,cnvs.height*.06);
+		ctx.fillStyle="black";
+		ctx.fillText(txt3,cnvs.width/2-ms3.width/2,cnvs.height*.93);
 	}
 };
 HelichalGame.prototype.tick = function() {
@@ -138,12 +145,13 @@ HelichalGame.prototype.tick = function() {
 		this.lastTime=new Date().getTime();
 		for(var p = 0; p < this.platforms.length; p++) {
 			var cp = this.platforms[p];
-			cp.h-=this.adj;
+			cp.h-=this.adj*(this.gamemode==2?2:1);
 			if(this.py<cnvs.height-cp.h&&this.py+this.psz>cnvs.height*.95-cp.h&&(this.px<cp.x||this.px+this.psz>cp.x+cnvs.width/3)) {
 				this.state=-3;
-				this.draw();
-				//this.draw();
 			}
+		}
+		if(this.state==-3) {
+			this.draw();
 		}
 		if(this.platforms[0].h<-cnvs.height*.06) {
 			this.platforms.shift();
@@ -188,7 +196,8 @@ HelichalGame.prototype.click = function(x,y) {
 		}
 	}
 	else if(this.state==0) {
-		if(y>cnvs.height*.94) this.gamemode=1;
+		if(y>cnvs.height*.94) {this.gamemode=1;}
+		else if(y>cnvs.height*.88) {this.gamemode=2;}
 		this.state=1;
 		this.tick();
 	}
