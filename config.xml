@@ -10,10 +10,6 @@
 	<preference name="permissions" value="none"/>
 	<preference name="orientation" value="portrait"/>
 	<preference name="fullscreen" value="true"/>
-	<gap:plugin name="nl.x-services.plugins.insomnia" version="3.0" />
-	<feature name="Media">
-	    <param name="android-package" value="org.apache.cordova.media.AudioHandler" />
-	</feature>
 	<icon src="www/icon.png" />
 	<icon platform="android" density="ldpi" src="www/res/icons/icon-36.png" />
 	<icon platform="android" density="mdpi" src="www/res/icons/icon-48.png" />
