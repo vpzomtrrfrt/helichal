@@ -3,30 +3,8 @@
 		<link rel="stylesheet" href="main.css"/>
 		<link rel="apple-touch-icon-precomposed" sizes="57x57" href="res/icons/icon-57.png"/>
 		<script type="text/javascript" src="main.js"></script>
-		<script type="text/javascript" src="http://soma.smaato.net/oapi/js/smaatoAdTag.js"></script>
 	</head>
 	<body onload="onLoad()">
-		<!-- ad stuff -->
-		<div id="smaatoad" style="padding: 0px; position: absolute; top: 0px; left: 0px; width: 100%"></div>
-		<script type="text/javascript">
-			function callBackForSmaato(status){
-				if(status == "SUCCESS"){
-				console.log('callBack is being called with status : ' + status);
-				} else if (status == "ERROR"){
-					console.log('callBack is being called with status : ' + status);
-				}
-			};
-			SomaJS.loadAd({
-				adDivId : "smaatoad",
-				publisherId: 923884050,
-				adSpaceId: 65852700,
-				width: window.innerWidth,
-				height: window.winnerHeight/5
-			},callBackForSmaato);
-		</script>
-		<!-- end ad stuff -->
-
-
 		<canvas id="cnvs"></canvas>
 		<script type="text/javascript" src="cordova.js"></script>
 	</body>

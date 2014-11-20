@@ -334,7 +334,7 @@ function onReady(t) {
 		document.addEventListener("pause",onPause);
 		document.addEventListener("resume",onResume);
 	}
-	adh = document.getElementById('smaatoad').clientHeight;
+	adh = 0;
 	cnvs = document.getElementById('cnvs');
 	cnvs.width=window.innerWidth;
 	cnvs.height=window.innerHeight-adh;
