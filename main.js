@@ -3,6 +3,7 @@ function rAF(f) {
 	else {setTimeout(f,33);}
 }
 inBack = false;
+disableMouse=false;
 pclrs = ["red","lime","cyan","orange"];
 cbx = [
 	{
