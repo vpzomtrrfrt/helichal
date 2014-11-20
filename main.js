@@ -186,7 +186,7 @@ HelichalGame.prototype.tick = function() {
 			fps = 60;
 		}
 		this.adj = (60/fps)*(cnvs.width/240);
-		this.px+=accel.x*this.adj;
+		this.px+=accel.x*this.adj*(this.gamemode==2?1.2:1);
 		if(this.gamemode==1) {
 			this.py=Math.max(Math.min(this.py+accel.y*this.adj,maxpy),0);
 		}
@@ -196,7 +196,7 @@ HelichalGame.prototype.tick = function() {
 		this.lastTime=new Date().getTime();
 		for(var p = 0; p < this.platforms.length; p++) {
 			var cp = this.platforms[p];
-			cp.h-=this.adj*(this.gamemode==2?3:1);
+			cp.h-=this.adj*(this.gamemode==2?2.85:1);
 			if(this.py<cnvs.height-cp.h&&this.py+this.psz>cnvs.height*.94-cp.h&&(this.px<cp.x||this.px+this.psz>cp.x+cnvs.width/3)) {
 				this.state=-3;
 			}
@@ -226,7 +226,7 @@ HelichalGame.prototype.genPlatforms = function() {
 	while(this.platforms[this.platforms.length-1].h<cnvs.height) {
 		var lp = this.platforms[this.platforms.length-1];
 		var npx = Math.floor(Math.random()*(cnvs.width*.8));
-		var nph = lp.h+Math.min(cnvs.height*.2+Math.abs(npx-lp.x)/((5-Math.random()*(4-this.score/100))*this.adj),cnvs.height);
+		var nph = lp.h+Math.min(cnvs.height*.2+Math.abs(npx-lp.x)*(this.gamemode==2?2:1)/((5-Math.random()*(4-this.score/100))*this.adj),cnvs.height);
 		
 		this.platforms.push({x: npx, h: nph});
 	}
