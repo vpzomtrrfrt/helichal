@@ -6,12 +6,13 @@ pclrs = ["red","lime","cyan","orange"];
 cbx = [
 	{
 		txt: "Play Music?",
-		default: false
+		default: false,
+		toShow: function() {return "mus" in window;}
 	}
 ];
 for(var i = 0; i < cbx.length; i++) {
 	if("helichalOption"+i in localStorage) {
-		cbx[i].enabled=!!localStorage.getItem("helichalOption"+i);
+		cbx[i].enabled=localStorage.getItem("helichalOption"+i)!="false";
 	}
 	else {
 		cbx[i].enabled=cbx[i].default;
@@ -153,6 +154,7 @@ HelichalGame.prototype.draw = function() {
 		ctx.font=Math.ceil(16*cnvs.width/240)+"px monospace";
 		var sz = parseInt(ctx.font);
 		for(var i = 0; i < cbx.length; i++) {
+			if(cbx[i].toShow&&!cbx[i].toShow()) continue;
 			var txt = cbx[i].txt;
 			var msc = ctx.measureText(txt);
 			var x = cnvs.width/2-msc.width/2;
@@ -172,8 +174,8 @@ HelichalGame.prototype.draw = function() {
 	}
 };
 HelichalGame.prototype.tick = function() {
-	if(cbx[0].enabled&&mus.paused) mus.play();
-	if(!cbx[0].enabled&&!mus.paused) mus.pause();
+	if(cbx[0].enabled&&window.mus&&(mus.paused||!("paused" in mus))) mus.play();
+	if(!cbx[0].enabled&&window.mus&&!mus.paused) mus.pause();
 	if(this.state==1) {
 		this.keepAwake();
 		if(this.lastTime) {
@@ -258,6 +260,7 @@ HelichalGame.prototype.click = function(x,y) {
 	else if(this.state==7) {
 		var ty = Math.ceil(20*cnvs.width/240)*2;
 		for(var i = 0; i < cbx.length; i++) {
+			if(cbx[i].toShow&&!cbx[i].toShow()) continue;
 			var ny = ty+Math.ceil(16*cnvs.width/240)*1.5;
 			if(y>ty&&y<ny) {
 				cbx[i].enabled=!cbx[i].enabled;
@@ -300,21 +303,33 @@ function onLoad() {
 	okimg.src="img/okimg.png";
 	stimg = document.createElement('img');
 	stimg.src="img/gear.png";
-	mus = document.createElement('audio');
-	var asrc = document.createElement('source');
-	asrc.src="sound/pi.mp3";
-	asrc.type="audio/mpeg";
-	mus.appendChild(asrc);
-	mus.loop=true;
 	if(window.cordova) {
 		document.addEventListener("deviceready", onReady);
 	}
 	else {
-		onReady();
+		mus = document.createElement('audio');
+		var asrc = document.createElement('source');
+		asrc.src="sound/pi.mp3";
+		asrc.type="audio/mpeg";
+		mus.appendChild(asrc);
+		mus.loop=true;
+		onReady("trololol");
 	}
 }
-function onReady() {
+function onResume() {
+	if(window.mus&&cbx[0].enabled) mus.play();
+}
+function onPause() {
+	if(window.mus) mus.pause();
+	console.log("PAUSE");
+}
+function onReady(t) {
 	console.log("ready");
+	if(t!="trololol"&&window.Media) mus=new Media(location.href.substring(0,location.href.indexOf('www/')+4)+'sound/pi.mp3');
+	if(t!="trololol") {
+		document.addEventListener("pause",onPause);
+		document.addEventListener("resume",onResume);
+	}
 	adh = document.getElementById('smaatoad').clientHeight;
 	cnvs = document.getElementById('cnvs');
 	cnvs.width=window.innerWidth;
