@@ -2,6 +2,7 @@ function rAF(f) {
 	if(window.requestAnimationFrame) {window.requestAnimationFrame(f);}
 	else {setTimeout(f,33);}
 }
+inBack = false;
 pclrs = ["red","lime","cyan","orange"];
 cbx = [
 	{
@@ -174,7 +175,7 @@ HelichalGame.prototype.draw = function() {
 	}
 };
 HelichalGame.prototype.tick = function() {
-	if(cbx[0].enabled&&window.mus&&(mus.paused||!("paused" in mus))) mus.play();
+	if(cbx[0].enabled&&window.mus&&(mus.paused||!("paused" in mus))&&!inBack) mus.play();
 	if(!cbx[0].enabled&&window.mus&&!mus.paused) mus.pause();
 	if(this.state==1) {
 		this.keepAwake();
@@ -318,10 +319,12 @@ function onLoad() {
 }
 function onResume() {
 	if(window.mus&&cbx[0].enabled) mus.play();
+	inBack=false;
 }
 function onPause() {
 	if(window.mus) mus.pause();
 	console.log("PAUSE");
+	inBack=true;
 }
 function onReady(t) {
 	console.log("ready");
