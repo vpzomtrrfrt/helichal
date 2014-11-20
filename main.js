@@ -3,6 +3,20 @@ function rAF(f) {
 	else {setTimeout(f,33);}
 }
 pclrs = ["red","lime","cyan","orange"];
+cbx = [
+	{
+		txt: "Play Music?",
+		default: false
+	}
+];
+for(var i = 0; i < cbx.length; i++) {
+	if("helichalOption"+i in localStorage) {
+		cbx[i].enabled=!!localStorage.getItem("helichalOption"+i);
+	}
+	else {
+		cbx[i].enabled=cbx[i].default;
+	}
+}
 var HelichalGame = function(st,gm) {
 	HelichalGame.currentGame=this;
 	this.px=cnvs.width*.45;
@@ -124,9 +138,42 @@ HelichalGame.prototype.draw = function() {
 		ctx.fillRect(0,cnvs.height*.88,cnvs.width,cnvs.height*.06);
 		ctx.fillStyle="black";
 		ctx.fillText(txt3,cnvs.width/2-ms3.width/2,cnvs.height*.93);
+
+		ctx.drawImage(stimg,cnvs.width*7/8,0,cnvs.width/8,cnvs.width/8);
+	}
+	else if(this.state==7) {
+		ctx.clearRect(0,0,cnvs.width,cnvs.height);
+		var htx = "Helichal Settings";
+		ctx.font=Math.ceil(20*cnvs.width/240)+"px monospace";
+		var msh = ctx.measureText(htx);
+		ctx.fillStyle="black";
+		var y = parseInt(ctx.font);
+		ctx.fillText(htx,cnvs.width/2-msh.width/2,y);
+		y*=2;
+		ctx.font=Math.ceil(16*cnvs.width/240)+"px monospace";
+		var sz = parseInt(ctx.font);
+		for(var i = 0; i < cbx.length; i++) {
+			var txt = cbx[i].txt;
+			var msc = ctx.measureText(txt);
+			var x = cnvs.width/2-msc.width/2;
+			y+=sz*1.5;
+			ctx.fillText(txt,x+sz/4,y);
+			ctx.strokeStyle="black";
+			ctx.strokeRect(x-sz,y-sz,sz,sz);
+			if(cbx[i].enabled) {
+				ctx.beginPath();
+				ctx.moveTo(x-sz*.75,y-sz*.75);
+				ctx.lineTo(x-sz*.5,y-sz/4);
+				ctx.lineTo(x+sz*.3,y-sz*1.5);
+				ctx.stroke();
+			}
+		}
+		ctx.drawImage(okimg, cnvs.width*.3, cnvs.height*.7, cnvs.width*.4, cnvs.width*.2);
 	}
 };
 HelichalGame.prototype.tick = function() {
+	if(cbx[0].enabled&&mus.paused) mus.play();
+	if(!cbx[0].enabled&&!mus.paused) mus.pause();
 	if(this.state==1) {
 		this.keepAwake();
 		if(this.lastTime) {
@@ -201,10 +248,28 @@ HelichalGame.prototype.click = function(x,y) {
 		}
 	}
 	else if(this.state==0) {
+		var toState=1;
 		if(y>cnvs.height*.94) {this.gamemode=1;}
 		else if(y>cnvs.height*.88) {this.gamemode=2;}
-		this.state=1;
+		else if(x>cnvs.width*3/4&&y<cnvs.width/4) {toState=7;}
+		this.state=toState;
 		this.tick();
+	}
+	else if(this.state==7) {
+		var ty = Math.ceil(20*cnvs.width/240)*2;
+		for(var i = 0; i < cbx.length; i++) {
+			var ny = ty+Math.ceil(16*cnvs.width/240)*1.5;
+			if(y>ty&&y<ny) {
+				cbx[i].enabled=!cbx[i].enabled;
+				localStorage.setItem("helichalOption"+i,cbx[i].enabled);
+				this.tick();
+			}
+			ty=ny;
+		}
+		if(x>cnvs.width*.3&&x<cnvs.width*.7&&y>cnvs.height*.7&&y<cnvs.height*.7+cnvs.width*.2) {
+			this.state=0;
+			this.tick();
+		}
 	}
 };
 HelichalGame.prototype.touchstart = function($0, e) {
@@ -227,16 +292,26 @@ var orient = function(e) {
 };
 function onLoad() {
 	console.log("loaded");
+	rpimg = document.createElement('img');
+	rpimg.src="img/replay.png";
+	mmimg = document.createElement('img');
+	mmimg.src="img/menu.png";
+	okimg = document.createElement('img');
+	okimg.src="img/okimg.png";
+	stimg = document.createElement('img');
+	stimg.src="img/gear.png";
+	mus = document.createElement('audio');
+	var asrc = document.createElement('source');
+	asrc.src="sound/pi.mp3";
+	asrc.type="audio/mpeg";
+	mus.appendChild(asrc);
+	mus.loop=true;
 	if(window.cordova) {
 		document.addEventListener("deviceready", onReady);
 	}
 	else {
 		onReady();
 	}
-	rpimg = document.createElement('img');
-	rpimg.src="img/replay.png";
-	mmimg = document.createElement('img');
-	mmimg.src="img/menu.png";
 }
 function onReady() {
 	console.log("ready");
