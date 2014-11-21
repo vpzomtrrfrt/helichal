@@ -20,6 +20,16 @@ for(var i = 0; i < cbx.length; i++) {
 		cbx[i].enabled=cbx[i].default;
 	}
 }
+var gamemodes={
+	1: {
+		name: "Free Fly Mode",
+		color: "red"
+	},
+	2: {
+		name: "Lightning Mode",
+		color: "yellow"
+	}
+};
 var HelichalGame = function(st,gm) {
 	HelichalGame.currentGame=this;
 	this.px=cnvs.width*.45;
@@ -51,6 +61,17 @@ HelichalGame.prototype.allowSleep = function() {
 	}
 };
 HelichalGame.prototype.pickColor = function() {this.pclr = pclrs[Math.floor(Math.random()*pclrs.length)];};
+HelichalGame.prototype.drawGM = function(m,mty,a) {
+	if(!(m in gamemodes)) return;
+	var M = gamemodes[m];
+	var txm = M.name+a;
+	ctx.font=Math.floor(cnvs.height/20)+"px monospace";
+	var msm = ctx.measureText(txm);
+	ctx.fillStyle=M.color;
+	ctx.fillRect(0,mty-cnvs.height*.06,cnvs.width,cnvs.height*.06);
+	ctx.fillStyle="black";
+	ctx.fillText(txm,cnvs.width/2-msm.width/2,mty-cnvs.height*.01);
+};
 HelichalGame.prototype.draw = function() {
 	if(this.state==1||this.state==-3) {
 		ctx.clearRect(0,0,cnvs.width,cnvs.height);
@@ -131,20 +152,11 @@ HelichalGame.prototype.draw = function() {
 		var msa = ctx.measureText(txt);
 		ctx.fillText(txt,cnvs.width/2-msa.width/2,cnvs.height*.6);
 		
-		var txt2 = "Free Fly Mode?";
-		ctx.font=Math.floor(cnvs.height/20)+"px monospace";
-		var ms2 = ctx.measureText(txt2);
-		ctx.fillStyle="red";
-		ctx.fillRect(0,cnvs.height*.94,cnvs.width,cnvs.height*.06);
-		ctx.fillStyle="black";
-		ctx.fillText(txt2,cnvs.width/2-ms2.width/2,cnvs.height*.99);
-		
-		var txt3 = "Lightning Mode?";
-		var ms3 = ctx.measureText(txt3);
-		ctx.fillStyle="yellow";
-		ctx.fillRect(0,cnvs.height*.88,cnvs.width,cnvs.height*.06);
-		ctx.fillStyle="black";
-		ctx.fillText(txt3,cnvs.width/2-ms3.width/2,cnvs.height*.93);
+		var mty = cnvs.height;
+		for(var m in gamemodes) {
+			this.drawGM(m,mty,"?");
+			mty-=cnvs.height*.06;
+		}
 
 		ctx.drawImage(stimg,cnvs.width*7/8,0,cnvs.width/8,cnvs.width/8);
 	}
@@ -177,6 +189,9 @@ HelichalGame.prototype.draw = function() {
 			}
 		}
 		ctx.drawImage(okimg, cnvs.width*.3, cnvs.height*.7, cnvs.width*.4, cnvs.width*.2);
+	}
+	if(this.state==1||this.state==-3||this.state==-2) {
+		this.drawGM(this.gamemode,cnvs.height*.06,"!");
 	}
 };
 HelichalGame.prototype.tick = function() {
