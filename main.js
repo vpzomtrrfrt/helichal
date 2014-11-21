@@ -24,8 +24,7 @@ var HelichalGame = function(st,gm) {
 	HelichalGame.currentGame=this;
 	this.px=cnvs.width*.45;
 	this.psz=cnvs.width*.1;
-	this.py=cnvs.height-this.psz-2;
-	maxpy=this.py;
+	this.adjustY();
 	this.platforms = [{x: cnvs.width*.4, h: cnvs.height/5}];
 	this.score=0;
 	this.state=st===undefined?1:st;
@@ -33,6 +32,11 @@ var HelichalGame = function(st,gm) {
 	this.pickColor();
 	this.secret={};
 	this.gamemode=gm?gm:0;
+};
+HelichalGame.prototype.adjustY = function() {
+	cnvs.height=window.innerHeight;
+	this.py=cnvs.height-this.psz-2;
+	maxpy=this.py;
 };
 HelichalGame.prototype.keepAwake = function() {
 	if(window.plugins&&window.plugins.insomnia&&!this.stayingAwake) {
@@ -328,7 +332,6 @@ function onPause() {
 	inBack=true;
 }
 function onReady(t) {
-	adh=0;
 	console.log("ready");
 	if(t!="trololol"&&window.Media) mus=new Media(location.href.substring(0,location.href.indexOf('www/')+4)+'sound/pi.mp3');
 	if(t!="trololol") {
@@ -341,18 +344,16 @@ function onReady(t) {
 				bannerAtTop: true
 			});
 			admob.createBannerView();
-			adh = 50;
 		}
 		
 	}
 	cnvs = document.getElementById('cnvs');
 	cnvs.width=window.innerWidth;
-	cnvs.height=window.innerHeight-adh;
-	//cnvs.style.top=adh;
 	ctx = cnvs.getContext('2d');
 	var game = new HelichalGame(0);
 	game.tick();
 	window.addEventListener("deviceorientation", orient);
 	window.addEventListener("touchstart", HelichalGame.fire.bind(HelichalGame,"touchstart"));
 	window.addEventListener("mousedown", HelichalGame.fire.bind(HelichalGame,"mousestart"));
+	window.addEventListener("resize", HelichalGame.fire.bind(HelichalGame,"adjustY"));
 };
