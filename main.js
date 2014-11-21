@@ -228,8 +228,9 @@ HelichalGame.prototype.genPlatforms = function() {
 		var lp = this.platforms[this.platforms.length-1];
 		var npx = Math.floor(Math.random()*(cnvs.width*.8));
 		var nph = lp.h+Math.min(cnvs.height*.2+Math.abs(npx-lp.x)*(this.gamemode==2?2:1)/((5-Math.random()*(4-this.score/100))*this.adj),cnvs.height);
-		
-		this.platforms.push({x: npx, h: nph});
+		if(!isNaN(nph)) {
+			this.platforms.push({x: npx, h: nph});
+		}
 	}
 };
 HelichalGame.prototype.click = function(x,y) {
@@ -279,14 +280,14 @@ HelichalGame.prototype.click = function(x,y) {
 };
 HelichalGame.prototype.touchstart = function($0, e) {
 	var x = e.changedTouches[0].clientX;
-	var y = e.changedTouches[0].clientY-adh;
+	var y = e.changedTouches[0].clientY;
 	this.click(x,y);
 	disableMouse=true;
 };
 HelichalGame.prototype.mousestart = function($0, e) {
 	if(!disableMouse) {
 		console.log(e);
-		this.click(e.pageX,e.pageY-adh);
+		this.click(e.pageX,e.pageY);
 	}
 };
 accel = {x:0,y:0};
@@ -324,21 +325,30 @@ function onResume() {
 }
 function onPause() {
 	if(window.mus) mus.pause();
-	console.log("PAUSE");
 	inBack=true;
 }
 function onReady(t) {
+	adh=0;
 	console.log("ready");
 	if(t!="trololol"&&window.Media) mus=new Media(location.href.substring(0,location.href.indexOf('www/')+4)+'sound/pi.mp3');
 	if(t!="trololol") {
 		document.addEventListener("pause",onPause);
 		document.addEventListener("resume",onResume);
+		if("plugins" in window && "AdMob" in window.plugins) {
+			var admob = window.plugins.AdMob;
+			admob.setOptions({
+				publisherId: "ca-app-pub-8192472098497743/5140228512",
+				bannerAtTop: true
+			});
+			admob.createBannerView();
+			adh = 50;
+		}
+		
 	}
-	adh = 0;
 	cnvs = document.getElementById('cnvs');
 	cnvs.width=window.innerWidth;
 	cnvs.height=window.innerHeight-adh;
-	cnvs.style.top=adh;
+	//cnvs.style.top=adh;
 	ctx = cnvs.getContext('2d');
 	var game = new HelichalGame(0);
 	game.tick();
