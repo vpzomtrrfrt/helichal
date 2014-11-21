@@ -72,6 +72,20 @@ HelichalGame.prototype.drawGM = function(m,mty,a) {
 	ctx.fillStyle="black";
 	ctx.fillText(txm,cnvs.width/2-msm.width/2,mty-cnvs.height*.01);
 };
+HelichalGame.prototype.getHighscore = function() {
+	var hsk = this.gamemode==0?"helichalHighscore":("helichalGM"+this.gamemode+"HS");
+	if(hsk in localStorage) {
+		var high = parseInt(localStorage.getItem(hsk));
+	}
+	else {
+		var high = -1;
+	}
+	return high;
+};
+HelichalGame.prototype.saveHighscore = function(high) {
+	var hsk = this.gamemode==0?"helichalHighscore":("helichalGM"+this.gamemode+"HS");
+	localStorage.setItem(hsk,high);
+};
 HelichalGame.prototype.draw = function() {
 	if(this.state==1||this.state==-3) {
 		ctx.clearRect(0,0,cnvs.width,cnvs.height);
@@ -103,7 +117,14 @@ HelichalGame.prototype.draw = function() {
 		if(this.state==1) {
 			ctx.fillStyle="black";
 			ctx.font=(12*cnvs.width/240)+"pt serif";
-			ctx.fillText("Score: "+this.score,0,cnvs.height-3);
+			var txt1 = "Score: "+this.score;
+			ctx.fillText(txt1,0,cnvs.height-3);
+			var high = this.getHighscore();
+			var txt2 = "High Score: "+high;
+			var ms2 = ctx.measureText(txt2);
+			if(high>-1&&(ctx.measureText(txt1).width+ms2.width+20<cnvs.width)) {
+				ctx.fillText(txt2,cnvs.width-ms2.width,cnvs.height-3);
+			}
 		}
 		else {
 			this.state=-2;
@@ -112,20 +133,14 @@ HelichalGame.prototype.draw = function() {
 	else if(this.state==-2) {
 		ctx.fillStyle="rgba(255,255,255,0.5)";
 		ctx.fillRect(0,0,cnvs.width,cnvs.height);
-		var hsk = this.gamemode==0?"helichalHighscore":("helichalGM"+this.gamemode+"HS");
-		if(hsk in localStorage) {
-			var high = parseInt(localStorage.getItem(hsk));
-		}
-		else {
-			var high = -1;
-		}
+		var high = this.getHighscore();
 		var hst = "High Score: ";
 		ctx.fillStyle="black";
 		if(this.score>high) {
 			ctx.fillStyle="red";
 			hst="New "+hst;
 			high = this.score;
-			localStorage.setItem(hsk,high);
+			this.saveHighscore(high);
 		}
 		hst+=high;
 		ctx.font=Math.ceil(10*cnvs.width/240)+"pt monospace";
