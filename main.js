@@ -9,7 +9,7 @@ cbx = [
 	{
 		txt: "Play Music?",
 		default: false,
-		toShow: function() {return "mus" in window;}
+		toShow: function() {return "mus" in window&&window.mus._duration!=-1;}
 	}
 ];
 for(var i = 0; i < cbx.length; i++) {
