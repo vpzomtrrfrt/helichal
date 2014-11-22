@@ -99,13 +99,13 @@ HelichalGame.prototype.drawChar = function(x,y) {
 	ctx.fillStyle=this.pclr;
 	ctx.fillRect(x,y,this.psz,this.psz);
 	ctx.fillStyle="yellow";
-	ctx.fillRect(x+this.psz/5,y+this.psz/5,this.psz/5,this.psz/((this.dir0time>30&&this.dir0time<35)?10:5));
-	ctx.fillRect(x+this.psz*3/5,y+this.psz/5,this.psz/5,this.psz/((this.dir0time>30&&this.dir0time<35)?10:5));
+	ctx.fillRect(x+this.psz/5,y+this.psz/5,this.psz/5,this.psz/((this.dir0time>60&&this.dir0time<65)?10:5));
+	ctx.fillRect(x+this.psz*3/5,y+this.psz/5,this.psz/5,this.psz/((this.dir0time>60&&this.dir0time<65)?10:5));
 	ctx.fillStyle="black";
 	var dir = accel.x<-1?-1:(accel.x>1?1:0);
 	if(dir==0) {
 		this.dir0time++;
-		if(this.dir0time>120&&Math.random()<0.1) this.dir0time=20;
+		if(this.dir0time>240&&Math.random()<0.1) this.dir0time=1;
 	}
 	else {
 		this.dir0time=0;
