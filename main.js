@@ -32,6 +32,10 @@ var gamemodes={
 	2: {
 		name: "Lightning Mode",
 		color: "yellow"
+	},
+	3: {
+		name: "Motion Mode",
+		color: "blue"
 	}
 };
 var HelichalGame = function(st,gm) {
@@ -39,7 +43,7 @@ var HelichalGame = function(st,gm) {
 	this.px=cnvs.width*.45;
 	this.psz=cnvs.width*.1;
 	this.adjustY();
-	this.platforms = [{x: cnvs.width*.4, h: cnvs.height/5}];
+	this.platforms = [{x: cnvs.width*.4, h: cnvs.height/5, stable: true}];
 	this.score=0;
 	this.state=st===undefined?1:st;
 	this.dir0time=0;
@@ -236,6 +240,15 @@ HelichalGame.prototype.tick = function() {
 		for(var p = 0; p < this.platforms.length; p++) {
 			var cp = this.platforms[p];
 			cp.h-=this.adj*(this.gamemode==2?2.85:1);
+			if(this.gamemode==3&&!cp.stable) {
+				cp.x+=cp.rev?-1:1;
+				if(cp.x+cnvs.width/3>=cnvs.width) {
+					cp.rev=true;
+				}
+				if(cp.x<=0) {
+					cp.rev=false;
+				}
+			}
 			if(this.py<cnvs.height-cp.h&&this.py+this.psz>cnvs.height*.94-cp.h&&(this.px<cp.x||this.px+this.psz>cp.x+cnvs.width/3)) {
 				this.state=-3;
 			}
@@ -292,9 +305,20 @@ HelichalGame.prototype.click = function(x,y) {
 	}
 	else if(this.state==0) {
 		var toState=1;
-		if(y>cnvs.height*.94) {this.gamemode=1;}
-		else if(y>cnvs.height*.88) {this.gamemode=2;}
-		else if(x>cnvs.width*3/4&&y<cnvs.width/4) {toState=7;}
+		var msy = cnvs.height;
+		for(var m in gamemodes) {
+			msy-=0.06*cnvs.height;
+			if(y>msy) {
+				this.gamemode=m;
+				console.log(m);
+				break;
+			}
+			else {
+				console.log(y);
+				console.log(msy);
+			}
+		}
+		if(x>cnvs.width*3/4&&y<cnvs.width/4) {toState=7;}
 		this.state=toState;
 		this.tick();
 	}
