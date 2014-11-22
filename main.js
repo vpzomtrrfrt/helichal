@@ -35,7 +35,7 @@ var gamemodes={
 	},
 	3: {
 		name: "Motion Mode",
-		color: "blue"
+		color: "#00e"
 	}
 };
 var HelichalGame = function(st,gm) {
@@ -94,27 +94,30 @@ HelichalGame.prototype.saveHighscore = function(high) {
 	var hsk = this.gamemode==0?"helichalHighscore":("helichalGM"+this.gamemode+"HS");
 	localStorage.setItem(hsk,high);
 };
+HelichalGame.prototype.drawChar = function(x,y) {
+	if(this.strobe) this.pickColor();
+	ctx.fillStyle=this.pclr;
+	ctx.fillRect(x,y,this.psz,this.psz);
+	ctx.fillStyle="yellow";
+	ctx.fillRect(x+this.psz/5,y+this.psz/5,this.psz/5,this.psz/((this.dir0time>30&&this.dir0time<35)?10:5));
+	ctx.fillRect(x+this.psz*3/5,y+this.psz/5,this.psz/5,this.psz/((this.dir0time>30&&this.dir0time<35)?10:5));
+	ctx.fillStyle="black";
+	var dir = accel.x<-1?-1:(accel.x>1?1:0);
+	if(dir==0) {
+		this.dir0time++;
+	}
+	else {
+		this.dir0time=0;
+	}
+	var ex = x+this.psz*(dir==-1?.6:(dir==1?.7:.65));
+	var ey = y+this.psz*(dir==0?.22:.25);
+	ctx.fillRect(ex,ey,this.psz/10,this.psz/10);
+	ctx.fillRect(ex-this.psz*.4,ey,this.psz/10,this.psz/10);
+};
 HelichalGame.prototype.draw = function() {
 	if(this.state==1||this.state==-3) {
 		ctx.clearRect(0,0,cnvs.width,cnvs.height);
-		if(this.strobe) this.pickColor();
-		ctx.fillStyle=this.pclr;
-		ctx.fillRect(this.px,this.py,this.psz,this.psz);
-		ctx.fillStyle="yellow";
-		ctx.fillRect(this.px+this.psz/5,this.py+this.psz/5,this.psz/5,this.psz/((this.dir0time>30&&this.dir0time<35)?10:5));
-		ctx.fillRect(this.px+this.psz*3/5,this.py+this.psz/5,this.psz/5,this.psz/((this.dir0time>30&&this.dir0time<35)?10:5));
-		ctx.fillStyle="black";
-		var dir = accel.x<-1?-1:(accel.x>1?1:0);
-		if(dir==0) {
-			this.dir0time++;
-		}
-		else {
-			this.dir0time=0;
-		}
-		var ex = this.px+this.psz*(dir==-1?.6:(dir==1?.7:.65));
-		var ey = this.py+this.psz*(dir==0?.22:.25);
-		ctx.fillRect(ex,ey,this.psz/10,this.psz/10);
-		ctx.fillRect(ex-this.psz*.4,ey,this.psz/10,this.psz/10);
+		this.drawChar(this.px,this.py);
 		for(var p=0;p<this.platforms.length;p++) {
 			var cp = this.platforms[p];	
 			if(isNaN(cp.h)) continue;
@@ -182,6 +185,7 @@ HelichalGame.prototype.draw = function() {
 		}
 
 		ctx.drawImage(stimg,cnvs.width*7/8,0,cnvs.width/8,cnvs.width/8);
+		this.drawChar(cnvs.width/2-this.psz/2,cnvs.height/4);
 	}
 	else if(this.state==7) {
 		ctx.clearRect(0,0,cnvs.width,cnvs.height);
