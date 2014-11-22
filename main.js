@@ -9,7 +9,11 @@ cbx = [
 	{
 		txt: "Play Music?",
 		default: false,
-		toShow: function() {return "mus" in window&&window.mus._duration!=-1;}
+		toShow: function() {if("mus" in window) {
+			if(window.mus._duration!=-1) {
+				return true;
+			}
+		}}
 	}
 ];
 for(var i = 0; i < cbx.length; i++) {
@@ -361,7 +365,10 @@ function onPause() {
 	if(window.mus) mus.pause();
 	inBack=true;
 }
+isAlreadyReady=false;
 function onReady(t) {
+	if(isAlreadyReady) return;
+	isAlreadyReady=true;
 	console.log("ready");
 	if(t!="trololol"&&window.Media) mus=new Media(location.href.substring(0,location.href.indexOf('www/')+4)+'sound/pi.mp3');
 	if(t!="trololol") {
@@ -375,7 +382,7 @@ function onReady(t) {
 			});
 			admob.createBannerView();
 		}
-		
+		mus.setVolume(0);mus.play();mus.pause();mus.setVolume(1);
 	}
 	cnvs = document.getElementById('cnvs');
 	cnvs.width=window.innerWidth;
