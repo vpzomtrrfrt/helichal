@@ -124,7 +124,9 @@ HelichalGame.prototype.draw = function() {
 			if(isNaN(cp.h)) continue;
 			ctx.fillStyle="blue";
 			ctx.fillRect(0,cnvs.height*.94-cp.h,cp.x,cnvs.height*.06);
-			ctx.fillRect(cp.x+cnvs.width/3,cnvs.height*.94-cp.h,cnvs.width*2/3-cp.x,cnvs.height*.06);
+			if(cp.x<cnvs.width*2/3) {
+				ctx.fillRect(cp.x+cnvs.width/3,cnvs.height*.94-cp.h,cnvs.width*2/3-cp.x,cnvs.height*.06);
+			}
 		}
 		if(this.state==1) {
 			ctx.fillStyle="black";
