@@ -105,6 +105,7 @@ HelichalGame.prototype.drawChar = function(x,y) {
 	var dir = accel.x<-1?-1:(accel.x>1?1:0);
 	if(dir==0) {
 		this.dir0time++;
+		if(this.dir0time>120&&Math.random()<0.1) this.dir0time=20;
 	}
 	else {
 		this.dir0time=0;
