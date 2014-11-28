@@ -285,7 +285,7 @@ HelichalGame.prototype.genPlatforms = function() {
 	while(this.platforms[this.platforms.length-1].h<cnvs.height) {
 		var lp = this.platforms[this.platforms.length-1];
 		var npx = Math.floor(Math.random()*(cnvs.width*.8));
-		var nph = lp.h+Math.min(cnvs.height*.2+Math.abs(npx-lp.x)*(this.gamemode==2?2:1)/((5-Math.random()*(4-this.score/100))*this.adj),cnvs.height);
+		var nph = lp.h+Math.max(0,Math.min(cnvs.height*0.2*(1-this.score/1000)+Math.abs(npx-lp.x)*(this.gamemode==2?2:1)/((5-Math.random()*(4-this.score/100))*this.adj),cnvs.height));
 		if(!isNaN(nph)) {
 			this.platforms.push({x: npx, h: nph});
 		}
