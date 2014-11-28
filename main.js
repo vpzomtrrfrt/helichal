@@ -116,7 +116,7 @@ HelichalGame.prototype.drawChar = function(x,y) {
 	ctx.fillRect(ex-this.psz*.4,ey,this.psz/10,this.psz/10);
 };
 HelichalGame.prototype.draw = function() {
-	if(this.state==1||this.state==-3) {
+	if(this.state==1||this.state==-3||this.state==-6.9) {
 		ctx.clearRect(0,0,cnvs.width,cnvs.height);
 		this.drawChar(this.px,this.py);
 		for(var p=0;p<this.platforms.length;p++) {
@@ -139,18 +139,25 @@ HelichalGame.prototype.draw = function() {
 			if(high>-1&&(ctx.measureText(txt1).width+ms2.width+20<cnvs.width)) {
 				ctx.fillText(txt2,cnvs.width-ms2.width,cnvs.height-3);
 			}
+			ctx.fillStyle="#ddd";
+			ctx.fillRect(cnvs.width/25,cnvs.width/25,cnvs.width/25,cnvs.width*3/25);
+			ctx.fillRect(cnvs.width*3/25,cnvs.width/25,cnvs.width/25,cnvs.width*3/25);
+		}
+		else if(this.state==-6.9) {
+			this.state=-7;
+			this.tick();
 		}
 		else {
 			this.state=-2;
 		}
 	}
-	else if(this.state==-2) {
+	else if(this.state==-2||this.state==-7) {
 		ctx.fillStyle="rgba(255,255,255,0.5)";
 		ctx.fillRect(0,0,cnvs.width,cnvs.height);
 		var high = this.getHighscore();
 		var hst = "High Score: ";
 		ctx.fillStyle="black";
-		if(this.score>high) {
+		if(this.score>high&&this.state==-2) {
 			ctx.fillStyle="red";
 			hst="New "+hst;
 			high = this.score;
@@ -161,8 +168,8 @@ HelichalGame.prototype.draw = function() {
 		var msh = ctx.measureText(hst);
 		ctx.fillText(hst,cnvs.width/2-msh.width/2,cnvs.height*.53);
 		ctx.fillStyle="black";
-		ctx.font=Math.ceil(20*cnvs.width/240)+"pt monospace";
-		var txt = "Score: "+this.score;
+		ctx.font=(this.state==-7?"italic ":"")+Math.ceil(20*cnvs.width/240)+"pt monospace";
+		var txt = this.state==-2?("Score: "+this.score):"Paused";
 		var msm = ctx.measureText(txt);
 		ctx.fillText(txt,cnvs.width/2-msm.width/2,cnvs.height/2);
 		ctx.drawImage(rpimg,cnvs.width*.4,cnvs.height*.55,cnvs.width*.2,cnvs.width*.1);
@@ -273,6 +280,7 @@ HelichalGame.prototype.tick = function() {
 	}
 	this.draw();
 	if(this.state==-2) {this.state=-42;}
+	if(this.state==-7) {this.state=-67;}
 	if(this.state===0||this.state==1) {
 		rAF(HelichalGame.tickIt);
 	}
@@ -292,11 +300,18 @@ HelichalGame.prototype.genPlatforms = function() {
 	}
 };
 HelichalGame.prototype.click = function(x,y) {
-	if(this.state==-42) {
+	if(this.state==-42||this.state==-67) {
 		if(x>cnvs.width*.4&&x<cnvs.width*.6&&y>cnvs.height*.55&&y<cnvs.height*.55+cnvs.width*.1) {
-			var ng = new HelichalGame(undefined,this.gamemode);
-			if(this.strobe) ng.strobe=this.strobe;
-			ng.tick();
+			if(this.state==-42) {
+				var ng = new HelichalGame(undefined,this.gamemode);
+				if(this.strobe) ng.strobe=this.strobe;
+				ng.tick();
+			}
+			else {
+				this.state=1;
+				delete this.lastTime;
+				this.tick();
+			}
 		}
 		else if(x>cnvs.width*.4&&x<cnvs.width*.6&&y>cnvs.height*.7&&y<cnvs.height*.7+cnvs.width*.1) {
 			var ng = new HelichalGame(0);
@@ -328,6 +343,11 @@ HelichalGame.prototype.click = function(x,y) {
 		if(x>cnvs.width*3/4&&y<cnvs.width/4) {toState=7;}
 		this.state=toState;
 		this.tick();
+	}
+	else if(this.state==1) {
+		if(x<cnvs.width/5&&y<cnvs.width/5) {
+			this.state=-6.9;
+		}
 	}
 	else if(this.state==7) {
 		var ty = Math.ceil(20*cnvs.width/240)*2;
@@ -395,6 +415,14 @@ function onResume() {
 function onPause() {
 	if(window.mus) mus.pause();
 	inBack=true;
+	if(HelichalGame.currentGame.state==1) {
+		HelichalGame.currentGame.state=-6.9;
+	}
+}
+function onBack() {
+	if(HelichalGame.currentGame.state==1) {
+		HelichalGame.currentGame.state=-6.9;
+	}
 }
 isAlreadyReady=false;
 function onReady(t) {
@@ -405,6 +433,7 @@ function onReady(t) {
 	if(t!="trololol") {
 		document.addEventListener("pause",onPause);
 		document.addEventListener("resume",onResume);
+		document.addEventListener("backbutton",onBack);
 		if("plugins" in window && "AdMob" in window.plugins) {
 			var admob = window.plugins.AdMob;
 			admob.setOptions({
