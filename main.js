@@ -141,9 +141,10 @@ HelichalGame.prototype.draw = function() {
 			if(high>-1&&(ctx.measureText(txt1).width+ms2.width+20<cnvs.width)) {
 				ctx.fillText(txt2,cnvs.width-ms2.width,cnvs.height-3);
 			}
+			//pause bars
 			ctx.fillStyle="#ddd";
-			ctx.fillRect(cnvs.width/25,cnvs.width/25,cnvs.width/25,cnvs.width*3/25);
-			ctx.fillRect(cnvs.width*3/25,cnvs.width/25,cnvs.width/25,cnvs.width*3/25);
+			ctx.fillRect(cnvs.width/25,(this.gamemode!=0?cnvs.height*0.06:0)+cnvs.width/25,cnvs.width/25,cnvs.width*3/25);
+			ctx.fillRect(cnvs.width*3/25,(this.gamemode!=0?cnvs.height*0.06:0)+cnvs.width/25,cnvs.width/25,cnvs.width*3/25);
 		}
 		else if(this.state==-6.9) {
 			this.state=-7;
@@ -347,7 +348,7 @@ HelichalGame.prototype.click = function(x,y) {
 		this.tick();
 	}
 	else if(this.state==1) {
-		if(x<cnvs.width/5&&y<cnvs.width/5) {
+		if(x<cnvs.width/5&&y<(this.gamemode!=0?cnvs.height*0.06:0)+cnvs.width/5) {
 			this.state=-6.9;
 		}
 	}
