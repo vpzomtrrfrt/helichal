@@ -128,11 +128,13 @@ HelichalGame.prototype.draw = function() {
 				ctx.fillRect(cp.x+cnvs.width/3,cnvs.height*.94-cp.h,cnvs.width*2/3-cp.x,cnvs.height*.06);
 			}
 		}
-		if(this.state==1) {
+		if(this.state==1||this.state==-6.9) {
 			ctx.fillStyle="black";
 			ctx.font=(12*cnvs.width/240)+"pt serif";
 			var txt1 = "Score: "+this.score;
 			ctx.fillText(txt1,0,cnvs.height-3);
+		}
+		if(this.state==1) {
 			var high = this.getHighscore();
 			var txt2 = "High Score: "+high;
 			var ms2 = ctx.measureText(txt2);
