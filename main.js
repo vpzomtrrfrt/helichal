@@ -38,19 +38,49 @@ var gamemodes={
 		color: "#00e"
 	}
 };
+connseed = false;
+connevts = false;
+conother = {};
 var HelichalGame = function(st,gm) {
+	this.state=st===undefined?1:st;
+	if(HelichalGame.currentGame) {
+		if(this.state==1) {this.conn=HelichalGame.currentGame.conn;}
+		else {if(HelichalGame.currentGame.conn){HelichalGame.currentGame.conn.close();connevts=false;conother={};}}
+	}
 	HelichalGame.currentGame=this;
 	this.px=cnvs.width*.45;
 	this.psz=cnvs.width*.1;
 	this.adjustY();
 	this.platforms = [{x: cnvs.width*.4, h: cnvs.height/5, stable: true}];
 	this.score=0;
-	this.state=st===undefined?1:st;
 	this.dir0time=0;
 	this.pickColor();
 	this.secret={};
 	this.gamemode=gm?gm:0;
+	this.prog=0;
+	if(!connevts&&this.conn) {
+		this.conn.onmessage = function(d) {
+			console.log(d);
+			var m = d.data;
+			var c = m.split(":");
+			if(c[0]=="add") {
+				conother[c[1]] = {
+					c: pclrs[Math.floor(Math.random()*pclrs.length)]
+				};
+			}
+			else if(c[0]=="u") {
+				connseed=c[1];
+			}
+			else if(c[0]=="move") {
+				conother[c[1]].x=parseFloat(c[2]);
+				conother[c[1]].y=parseFloat(c[3]);
+			}
+		};
+		this.conn.send("join");
+		connevts=true;
+	}
 };
+HelichalGame.seed=Math.random()*234567;
 HelichalGame.prototype.adjustY = function() {
 	cnvs.height=window.innerHeight;
 	this.py=cnvs.height-this.psz-2;
@@ -94,9 +124,9 @@ HelichalGame.prototype.saveHighscore = function(high) {
 	var hsk = this.gamemode==0?"helichalHighscore":("helichalGM"+this.gamemode+"HS");
 	localStorage.setItem(hsk,high);
 };
-HelichalGame.prototype.drawChar = function(x,y) {
+HelichalGame.prototype.drawChar = function(x,y,clr) {
 	if(this.strobe) this.pickColor();
-	ctx.fillStyle=this.pclr;
+	ctx.fillStyle=clr?clr:this.pclr;
 	ctx.fillRect(x,y,this.psz,this.psz);
 	ctx.fillStyle="yellow";
 	ctx.fillRect(x+this.psz/5,y+this.psz/5,this.psz/5,this.psz/((this.dir0time>60&&this.dir0time<65)?10:5));
@@ -118,6 +148,14 @@ HelichalGame.prototype.drawChar = function(x,y) {
 HelichalGame.prototype.draw = function() {
 	if(this.state==1||this.state==-3||this.state==-6.9) {
 		ctx.clearRect(0,0,cnvs.width,cnvs.height);
+		for(var e in conother) {
+			if(conother[e].x) {
+				var coy = conother[e].y*(cnvs.width/240);
+				if(conother[e].y>this.prog&&coy-this.psz<this.prog*(cnvs.width/240)+cnvs.height) {
+					this.drawChar(conother[e].x*(cnvs.width/240),cnvs.height-(coy-this.prog*(cnvs.width/240)),conother[e].c);
+				}
+			}
+		}
 		this.drawChar(this.px,this.py);
 		for(var p=0;p<this.platforms.length;p++) {
 			var cp = this.platforms[p];	
@@ -239,6 +277,16 @@ HelichalGame.prototype.tick = function() {
 	if(!cbx[0].enabled&&window.mus&&!mus.paused) mus.pause();
 	if(this.state==1) {
 		this.keepAwake();
+		if(this.conn&&!connseed) {
+			rAF(HelichalGame.tickIt);
+			return;
+		}
+		if(!this.seeded) {
+			if(connseed) {HelichalGame.seed=connseed;}
+			console.log("seed: "+HelichalGame.seed);
+			HelichalGame.seed=HelichalGame.seededRandom()*234567;
+			this.seeded=true;
+		}
 		if(this.lastTime) {
 			fps = (1000/(new Date().getTime()-this.lastTime));
 		}
@@ -254,9 +302,11 @@ HelichalGame.prototype.tick = function() {
 		if(this.px<0) {this.px=0;}
 		if(this.px+this.psz>cnvs.width) {this.px=cnvs.width-this.psz}
 		this.lastTime=new Date().getTime();
+		var platmove = (this.gamemode==2?2.85:1)*this.adj;
+		this.prog += platmove/(cnvs.width/240);
 		for(var p = 0; p < this.platforms.length; p++) {
 			var cp = this.platforms[p];
-			cp.h-=this.adj*(this.gamemode==2?2.85:1);
+			cp.h-=platmove;
 			if(this.gamemode==3&&!cp.stable) {
 				cp.x+=cp.rev?-1:1;
 				if(cp.x+cnvs.width/3>=cnvs.width) {
@@ -277,6 +327,9 @@ HelichalGame.prototype.tick = function() {
 			this.platforms.shift();
 			this.score++;
 		}
+		if(this.conn) {
+			this.conn.send("move:"+this.px/(cnvs.width/240)+":"+(this.prog+(cnvs.height-this.py)*(cnvs.width/240)));
+		}
 	}
 	else {
 		this.allowSleep();
@@ -284,6 +337,7 @@ HelichalGame.prototype.tick = function() {
 	this.draw();
 	if(this.state==-2) {this.state=-42;}
 	if(this.state==-7) {this.state=-67;}
+	if(this.state==0) {document.getElementById('inp').style.zIndex=-1;}
 	if(this.state===0||this.state==1) {
 		rAF(HelichalGame.tickIt);
 	}
@@ -295,8 +349,8 @@ HelichalGame.fire = function(x) {
 HelichalGame.prototype.genPlatforms = function() {
 	while(this.platforms[this.platforms.length-1].h<cnvs.height) {
 		var lp = this.platforms[this.platforms.length-1];
-		var npx = Math.floor(Math.random()*(cnvs.width*.8));
-		var nph = lp.h+Math.max(0,Math.min(cnvs.height*0.2*(1-this.score/1000)+Math.abs(npx-lp.x)*(this.gamemode==2?2:1)/((5-Math.random()*(4-this.score/100))*this.adj),cnvs.height));
+		var npx = Math.floor(HelichalGame.seededRandom()*(cnvs.width*.8));
+		var nph = lp.h+Math.max(0,Math.min(cnvs.height*0.2*(1-this.score/1000)+Math.abs(npx-lp.x)*(this.gamemode==2?2:1)/((5-HelichalGame.seededRandom()*(4-this.score/100))*this.adj),cnvs.height));
 		if(!isNaN(nph)) {
 			this.platforms.push({x: npx, h: nph});
 		}
@@ -382,6 +436,13 @@ HelichalGame.prototype.mousestart = function($0, e) {
 		this.click(e.pageX,e.pageY);
 	}
 };
+HelichalGame.seededRandom = function(max, min) {
+	max = max || 1;
+	min = min || 0;
+	HelichalGame.seed = (HelichalGame.seed * 9301 + 49297) % 233280;
+	var rnd = HelichalGame.seed / 233280;
+	return min + rnd * (max - min);
+}
 accel = {x:0,y:0};
 
 var orient = function(e) {

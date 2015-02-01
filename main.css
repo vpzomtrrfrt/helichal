@@ -3,5 +3,12 @@
 	left: 0px;
 	top: 0px;
 	padding: 0px;
-	margin: 0px
+	margin: 0px;
+	background-color: white
+}
+#inp {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%)
 }
