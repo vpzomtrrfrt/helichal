@@ -85,6 +85,10 @@ var HelichalGame = function(st,gm) {
 		connevts=true;
 	}
 };
+HelichalGame.prototype.die = function() {
+	if(this.invulnerable) return;
+	this.state=-3;
+};
 HelichalGame.seed=Math.random()*234567;
 HelichalGame.prototype.adjustY = function() {
 	cnvs.height=window.innerHeight;
@@ -332,16 +336,16 @@ HelichalGame.prototype.tick = function() {
 				}
 			}
 			if(this.py<cnvs.height-cp.h&&this.py+this.psz>cnvs.height*.94-cp.h&&(this.px<cp.x||this.px+this.psz>cp.x+cnvs.width/3)) {
-				this.state=-3;
+				this.die();
 			}
 		}
 		if(this.gamemode==4) {
 			if(this.tappity===undefined) {
 				this.tappity=20;
 			}
-			this.tappity--;
+			this.tappity-=(60/fps)*(1+(this.score/400));
 			if(this.tappity<-taptime) {
-				this.state=-3;
+				this.die();
 			}
 		}
 		if(this.state==-3) {
@@ -431,10 +435,10 @@ HelichalGame.prototype.click = function(x,y) {
 		}
 		if(this.gamemode==4) {
 			if(this.tappity<0) {
-				this.tappity=HelichalGame.seededRandom()*500;
+				this.tappity=Math.random()*300;
 			}
 			else if(this.state==1) {
-				this.state=-3;
+				this.die();
 			}
 		}
 		if(this.state==-3) {this.draw();}
