@@ -41,6 +41,11 @@ var gamemodes={
 	4: {
 		name: "Tap It Mode",
 		color: "gray"
+	},
+	5: {
+		name: "Custom Mode",
+		color: "cyan",
+		hide: !localStorage.helichalCM
 	}
 };
 connseed = false;
@@ -61,7 +66,7 @@ var HelichalGame = function(st,gm) {
 	this.dir0time=0;
 	this.pickColor();
 	this.secret={};
-	this.gamemode=gm?gm:0;
+	this.setGamemode(gm?gm:0);
 	this.prog=0;
 	if(!connevts&&this.conn) {
 		this.conn.onmessage = function(d) {
@@ -85,6 +90,16 @@ var HelichalGame = function(st,gm) {
 		connevts=true;
 	}
 };
+HelichalGame.prototype.setGamemode = function(gm) {
+	this.gamemode=gm;
+	this.eqg = ""+gm;
+	if(gm==5) {
+		this.eqg+=localStorage.helichalCM;
+	}
+};
+HelichalGame.prototype.isGM = function(gm) {
+	return this.eqg.indexOf(gm)>-1;
+}
 HelichalGame.prototype.die = function() {
 	if(this.invulnerable) return;
 	this.state=-3;
@@ -175,7 +190,7 @@ HelichalGame.prototype.draw = function() {
 				ctx.fillRect(cp.x+cnvs.width/3,cnvs.height*.94-cp.h,cnvs.width*2/3-cp.x,cnvs.height*.06);
 			}
 		}
-		if(this.gamemode==4) {
+		if(this.isGM(4)) {
 			if(this.tappity < 0) {
 				var txtT = "TAP!";
 				ctx.fillStyle="red";
@@ -250,6 +265,7 @@ HelichalGame.prototype.draw = function() {
 		
 		var mty = cnvs.height;
 		for(var m in gamemodes) {
+			if(gamemodes[m].hide) continue;
 			this.drawGM(m,mty,"?");
 			mty-=cnvs.height*.06;
 		}
@@ -286,6 +302,23 @@ HelichalGame.prototype.draw = function() {
 			}
 		}
 		ctx.drawImage(okimg, cnvs.width*.3, cnvs.height*.7, cnvs.width*.4, cnvs.width*.2);
+		this.drawGM(5,cnvs.height,"");
+	}
+	else if(this.state==7.5) {
+		ctx.clearRect(0,0,cnvs.width,cnvs.height);
+		this.drawGM(5,cnvs.height*0.06,"");
+		var yo = 0;
+		var cm = localStorage.helichalCM;
+		if(!cm) cm="";
+		for(var m in gamemodes) {
+			if(m!=5&&!gamemodes[m].hide) {
+				this.drawGM(m,cnvs.height*(0.7-yo),(cm.indexOf(m)>-1)?"!":"?");
+				yo+=0.1;
+			}
+		}
+		if(cm.length>1) {
+			ctx.drawImage(okimg, cnvs.width*.3, cnvs.height*.8, cnvs.width*.4, cnvs.width*.2);
+		}
 	}
 	if(this.state==1||this.state==-3||this.state==-2) {
 		this.drawGM(this.gamemode,cnvs.height*.06,"!");
@@ -313,24 +346,24 @@ HelichalGame.prototype.tick = function() {
 			fps = 60;
 		}
 		this.adj = (60/fps)*(cnvs.width/240);
-		if(this.gamemode==4) {
+		if(this.isGM(4)) {
 			this.dtt = Math.max(taptime-Math.log(this.prog),10);
 			console.log("dtt: "+this.dtt);
 		}
-		this.px+=accel.x*this.adj*(this.gamemode==2?1.2:1);
-		if(this.gamemode==1) {
+		this.px+=accel.x*this.adj*(this.isGM(2)?1.2:1);
+		if(this.isGM(1)) {
 			this.py=Math.max(Math.min(this.py+accel.y*this.adj,maxpy),0);
 		}
 		this.genPlatforms();
 		if(this.px<0) {this.px=0;}
 		if(this.px+this.psz>cnvs.width) {this.px=cnvs.width-this.psz}
 		this.lastTime=new Date().getTime();
-		var platmove = (this.gamemode==2?2.85:1)*this.adj;
+		var platmove = (this.isGM(2)?2.85:1)*this.adj;
 		this.prog += platmove/(cnvs.width/240);
 		for(var p = 0; p < this.platforms.length; p++) {
 			var cp = this.platforms[p];
 			cp.h-=platmove;
-			if(this.gamemode==3&&!cp.stable) {
+			if(this.isGM(3)&&!cp.stable) {
 				cp.x+=cp.rev?-1:1;
 				if(cp.x+cnvs.width/3>=cnvs.width) {
 					cp.rev=true;
@@ -343,7 +376,7 @@ HelichalGame.prototype.tick = function() {
 				this.die();
 			}
 		}
-		if(this.gamemode==4) {
+		if(this.isGM(4)) {
 			if(this.tappity===undefined) {
 				this.tappity=20;
 			}
@@ -382,7 +415,7 @@ HelichalGame.prototype.genPlatforms = function() {
 	while(this.platforms[this.platforms.length-1].h<cnvs.height) {
 		var lp = this.platforms[this.platforms.length-1];
 		var npx = Math.floor(HelichalGame.seededRandom()*(cnvs.width*.8));
-		var nph = lp.h+Math.max(0,Math.min(cnvs.height*0.2*(1-this.score/1000)+Math.abs(npx-lp.x)*(this.gamemode==2?2:1)/((5-HelichalGame.seededRandom()*(4-this.score/100))*this.adj),cnvs.height));
+		var nph = lp.h+Math.max(0,Math.min(cnvs.height*0.2*(1-this.score/1000)+Math.abs(npx-lp.x)*(this.isGM(2)?2:1)/((5-HelichalGame.seededRandom()*(4-this.score/100))*this.adj),cnvs.height));
 		if(!isNaN(nph)) {
 			this.platforms.push({x: npx, h: nph});
 		}
@@ -420,7 +453,7 @@ HelichalGame.prototype.click = function(x,y) {
 		for(var m in gamemodes) {
 			msy-=0.06*cnvs.height;
 			if(y>msy) {
-				this.gamemode=m;
+				this.setGamemode(m);
 				console.log(m);
 				break;
 			}
@@ -437,7 +470,7 @@ HelichalGame.prototype.click = function(x,y) {
 		if(x<cnvs.width/5&&y<(this.gamemode!=0?cnvs.height*0.06:0)+cnvs.width/5) {
 			this.state=-6.9;
 		}
-		if(this.gamemode==4) {
+		if(this.isGM(4)) {
 			if(this.tappity<0) {
 				this.tappity=Math.random()*(300-this.score/3);
 			}
@@ -463,6 +496,34 @@ HelichalGame.prototype.click = function(x,y) {
 			this.state=0;
 			this.tick();
 		}
+		if(y>cnvs.height*.94) {
+			this.state=7.5;
+			this.tick();
+		}
+	}
+	else if(this.state==7.5) {
+		var yo = 0.7;
+		var cm = localStorage.helichalCM;
+		if(!cm) cm="";
+		for(var m in gamemodes) {
+			if(m!=5&&!gamemodes[m].hide) {
+				if(y<yo*cnvs.height&&y>(yo-0.06)*cnvs.height) {
+					if(cm.indexOf(m)>-1) {
+						cm = cm.replace(m,"");
+					}
+					else {
+						cm+=m;
+					}
+				}
+				yo-=0.1;
+			}
+		}
+		localStorage.helichalCM=cm;
+		if(x>cnvs.width*.3&&x<cnvs.width*.7&&y>cnvs.height*.8&&y<cnvs.height*.8+cnvs.width*.2&&cm.length>1) {
+			this.state=7;
+			delete gamemodes[5].hide;
+		}
+		this.tick();
 	}
 };
 HelichalGame.prototype.touchstart = function($0, e) {
