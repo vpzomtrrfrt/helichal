@@ -182,7 +182,7 @@ HelichalGame.prototype.draw = function() {
 				ctx.font=(24*cnvs.width/240)+"pt serif";
 				var msT = ctx.measureText(txtT);
 				ctx.fillText(txtT,cnvs.width/2-msT.width/2,cnvs.height/2);
-				ctx.fillRect(cnvs.width/6,cnvs.height/2,cnvs.width*2/3+(this.tappity*cnvs.width*2/3)/taptime,cnvs.height*0.05);
+				ctx.fillRect(cnvs.width/6,cnvs.height/2,cnvs.width*2/3+(this.tappity*cnvs.width*2/3)/this.dtt,cnvs.height*0.05);
 			}
 		}
 		if(this.state==1||this.state==-6.9) {
@@ -313,6 +313,10 @@ HelichalGame.prototype.tick = function() {
 			fps = 60;
 		}
 		this.adj = (60/fps)*(cnvs.width/240);
+		if(this.gamemode==4) {
+			this.dtt = Math.max(taptime-Math.log(this.prog),10);
+			console.log("dtt: "+this.dtt);
+		}
 		this.px+=accel.x*this.adj*(this.gamemode==2?1.2:1);
 		if(this.gamemode==1) {
 			this.py=Math.max(Math.min(this.py+accel.y*this.adj,maxpy),0);
@@ -344,7 +348,7 @@ HelichalGame.prototype.tick = function() {
 				this.tappity=20;
 			}
 			this.tappity-=(60/fps)*(1+(this.score/400));
-			if(this.tappity<-taptime) {
+			if(this.tappity<-this.dtt) {
 				this.die();
 			}
 		}
@@ -435,7 +439,7 @@ HelichalGame.prototype.click = function(x,y) {
 		}
 		if(this.gamemode==4) {
 			if(this.tappity<0) {
-				this.tappity=Math.random()*300;
+				this.tappity=Math.random()*(300-this.score/3);
 			}
 			else if(this.state==1) {
 				this.die();
