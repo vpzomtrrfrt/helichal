@@ -348,7 +348,6 @@ HelichalGame.prototype.tick = function() {
 		this.adj = (60/fps)*(cnvs.width/240);
 		if(this.isGM(4)) {
 			this.dtt = Math.max(taptime-Math.log(this.prog),10);
-			console.log("dtt: "+this.dtt);
 		}
 		this.px+=accel.x*this.adj*(this.isGM(2)?1.2:1);
 		if(this.isGM(1)) {
@@ -564,13 +563,19 @@ function onLoad() {
 	if(window.cordova) {
 		document.addEventListener("deviceready", onReady);
 	}
-	else {
+	if(!("Media" in window)) {
 		mus = document.createElement('audio');
 		var asrc = document.createElement('source');
 		asrc.src="sound/pi.mp3";
 		asrc.type="audio/mpeg";
 		mus.appendChild(asrc);
+		var asrc2 = document.createElement('source');
+		asrc2.src="sound/pi.ogg";
+		asrc2.type="audio/ogg";
+		mus.appendChild(asrc2);
 		mus.loop=true;
+	}
+	if(!window.cordova) {
 		onReady("trololol");
 	}
 }
@@ -608,7 +613,9 @@ function onReady(t) {
 			});
 			admob.createBannerView();
 		}
-		mus.setVolume(0);mus.play();mus.pause();mus.setVolume(1);
+		if(window.Media) {
+			mus.setVolume(0);mus.play();mus.pause();mus.setVolume(1);
+		}
 	}
 	cnvs = document.getElementById('cnvs');
 	cnvs.width=window.innerWidth;
